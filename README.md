@@ -13,12 +13,4 @@ Working in an interactive and interdisciplinary research environment.
 
 ## First TODOs
 
-- Setup a project (simple example, preprocessing, test/train split, train the model, score the model) that runs with makefile / pydoit 
-- Get the DAG file from that 
-- Generate yamls file based on this DAG (adapt this yaml to be maybe able to run with argo)
-- Write a function to generate yaml files starting from an arbitrary point
-- Store the data of hashes inside the graphs
-- Write a function to get the right point in the graph
-   -- data update: check if data actually changed and start the dag from the task that depends on this data
-   -- code update: check if the code change actually change the output and start the dag from this point
-
+Project's Tasks can be found [here](https://trello.com/b/suwl3K0K/project-workflow-kubernetes).
