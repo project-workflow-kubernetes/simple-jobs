@@ -13,7 +13,7 @@ if __name__ == '__main__':
     data outputs: `scores_test.csv
     '''
 
-    X_test = (pd.read_csv(os.path.join(s.RESOURCES_PATH, 'clean.csv'))
+    X_test = (pd.read_csv(os.path.join(s.RESOURCES_PATH, 'clean_test.csv'))
               .values)
     clf = joblib.load(os.path.join(s.RESOURCES_PATH, 'trained_model.pkl'))
     preds = pd.DataFrame(clf.predict(X_test))
