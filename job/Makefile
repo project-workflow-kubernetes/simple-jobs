@@ -1,6 +1,7 @@
 PROJECT_NAME=job
 TEST_PATH=./
 
+
 help:
 	@echo "install - install project in dev mode using conda"
 	@echo "test -  run tests quickly within env: $(PROJECT_NAME)"
@@ -8,6 +9,11 @@ help:
 	@echo "clean - remove build and python artifacts"
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove python artifacts"
+	@echo
+	@echo "preprocessing - generates clean_train.csv, clean_test.csv"
+	@echo "split - generates y_train.csv, X_train.csv, y_val, X_val"
+	@echo "train - generates trained_model.pkl"
+	@echo "score-test - generates score_test.csv"
 
 
 test: clean-pyc
@@ -33,13 +39,6 @@ install: clean
 	bash -c "source activate $(PROJECT_NAME) && pip install -e . && pip install -U -r requirements.txt && source deactivate"
 
 
-run:
-	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
-	bash -c "source activate $(PROJECT_NAME)"
-	@echo "\n--- Running main.py file ---\n"
-	python src/$(PROJECT_NAME)/main.py
-
-
 lint:
 	-@pylint src/**/*.py --output-format text --reports no --msg-template "{path}:{line:04d}:{obj} {msg} ({msg_id})" | sort
 
@@ -62,10 +61,29 @@ clean-pyc:
 clean: clean-build clean-pyc
 
 
-# preprocessing: train.csv
+preprocessing: resources/train.csv resources/test.csv
+	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
+	bash -c "source activate $(PROJECT_NAME)"
+	@echo "\n--- Running preprocessing.py file ---\n"
+	python src/$(PROJECT_NAME)/preprocessing.py
 
-# split: clean_train.csv
 
-# train: X_train, X_val, y_train, y_val
+split: resources/clean_train.csv
+	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
+	bash -c "source activate $(PROJECT_NAME)"
+	@echo "\n--- Running split.py file ---\n"
+	python src/$(PROJECT_NAME)/split.py
 
-# score_test: clean_test.csv, trained_model.pkl
+
+train: resources/X_train.csv resources/X_val.csv resources/y_train.csv resources/y_val.csv
+	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
+	bash -c "source activate $(PROJECT_NAME)"
+	@echo "\n--- Running train.py file ---\n"
+	python src/$(PROJECT_NAME)/train.py
+
+
+score-test: resources/clean_test.csv resources/trained_model.pkl
+	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
+	bash -c "source activate $(PROJECT_NAME)"
+	@echo "\n--- Running main.py file ---\n"
+	python src/$(PROJECT_NAME)/score_test.py
