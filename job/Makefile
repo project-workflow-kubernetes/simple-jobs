@@ -68,21 +68,21 @@ preprocessing: resources/train.csv resources/test.csv
 	python src/$(PROJECT_NAME)/preprocessing.py
 
 
-split: resources/clean_train.csv
+split: preprocessing resources/clean_train.csv
 	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
 	bash -c "source activate $(PROJECT_NAME)"
 	@echo "\n--- Running split.py file ---\n"
 	python src/$(PROJECT_NAME)/split.py
 
 
-train: resources/X_train.csv resources/X_val.csv resources/y_train.csv resources/y_val.csv
+train: split resources/X_train.csv resources/X_val.csv resources/y_train.csv resources/y_val.csv
 	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
 	bash -c "source activate $(PROJECT_NAME)"
 	@echo "\n--- Running train.py file ---\n"
 	python src/$(PROJECT_NAME)/train.py
 
 
-score-test: resources/clean_test.csv resources/trained_model.pkl
+score-test: train resources/clean_test.csv resources/trained_model.pkl
 	@echo "\n--- If the env $(PROJECT_NAME) doesn't exist, run 'make install' before ---\n"
 	bash -c "source activate $(PROJECT_NAME)"
 	@echo "\n--- Running main.py file ---\n"
