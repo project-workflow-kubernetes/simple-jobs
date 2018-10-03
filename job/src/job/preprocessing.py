@@ -5,15 +5,17 @@ import pandas as pd
 import settings as s
 
 
-def clean(prefix_path, train=True):
-    data_type = 'train' if train else 'test'
-    input_path = os.path.join(prefix_path, data_type + '.csv')
-    output_path = os.path.join(prefix_path, 'clean_' + data_type +'.csv')
+INPUT_PREFIX = s.RESOURCES_PATH
+OUTPUT_PREFIX = s.RESOURCES_PATH
+INPUTS = ['train.csv', 'test.csv']
+OUTPUTS = ['clean_train.csv', 'clean_test.csv']
 
-    df = pd.read_csv(input_path)
+
+def clean(df):
     out_df = df.dropna()
 
-    out_df.to_csv(output_path, index=False)
+    return out_df
+
 
 
 if __name__ == '__main__':
@@ -21,5 +23,13 @@ if __name__ == '__main__':
     data dependencies: `train.csv` and `test.csv`
     data outputs: `clean_train.csv` and `clean_test.csv`
     '''
-    clean(s.RESOURCES_PATH)
-    clean(s.RESOURCES_PATH, False)
+
+    input_path = os.path.join(INPUT_PREFIX, INPUTS[0])
+    output_path = os.path.join(OUTPUT_PREFIX, OUTPUTS[0])
+    out = clean(pd.read_csv(input_path))
+    out.to_csv(output_path, index=False)
+
+    input_path = os.path.join(INPUT_PREFIX, INPUTS[1])
+    output_path = os.path.join(OUTPUT_PREFIX, OUTPUTS[1])
+    out = clean(pd.read_csv(input_path))
+    out.to_csv(output_path, index=False)

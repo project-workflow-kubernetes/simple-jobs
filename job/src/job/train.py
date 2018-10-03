@@ -7,32 +7,40 @@ from sklearn.externals import joblib
 
 from job import settings as s
 
+INPUT_PREFIX = s.RESOURCES_PATH
+OUTPUT_PREFIX = s.RESOURCES_PATH
+INPUTS = ['X_train.csv', 'X_val.csv', 'y_train.csv', 'y_val.csv']
+OUTPUTS = ['trained_model.pkl']
+
 
 if __name__ == '__main__':
     '''
     data dependencies: `X_train.csv`, `X_val.csv`, `y_train`, `y_val`
     data outputs: `trained_model.pkl`
     '''
-    X_train = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'X_train.csv'),
+    X_train = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[0]),
                          delimiter=',',
                          dtype=np.float32)
 
-    X_val = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'X_val.csv'),
+    X_val = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[1]),
                        delimiter=',',
                        dtype=np.float32)
 
-    y_train = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'y_train.csv'),
+    y_train = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[2]),
                          delimiter=',',
                          dtype=np.float32)
 
-    y_val = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'y_val.csv'),
+    y_val = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[3]),
                        delimiter=',',
                        dtype=np.float32)
 
-    clf = MLPClassifier(solver='adam', hidden_layer_sizes=350, alpha=1e-04)
+    print(X_train.shape)
+    print(y_train.shape)
+
+    clf = MLPClassifier(solver='adam', hidden_layer_sizes=350, alpha=1e-03)
     clf.fit(X_train, y_train)
 
     score = clf.score(X_val, y_val)
     print('Final score: {}'.format(score))
 
-    joblib.dump(clf, os.path.join(s.RESOURCES_PATH, 'trained_model.pkl'))
+    joblib.dump(clf, os.path.join(OUTPUT_PREFIX, OUTPUTS[0]))
