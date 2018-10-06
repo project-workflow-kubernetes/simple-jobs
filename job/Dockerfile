@@ -7,10 +7,6 @@ COPY requirements.txt /job/
 COPY src/ /job/src/
 COPY test/ /job/test/
 
-# temporaly
-COPY resources/train.csv /job/resources/
-COPY resources/test.csv /job/resources/
-
 WORKDIR job/
 
 RUN find . | grep -E "(__pycache__|\.pyc$)" | xargs rm -rf

@@ -7,8 +7,6 @@ from sklearn.externals import joblib
 
 from job import settings as s
 
-INPUT_PREFIX = s.RESOURCES_PATH
-OUTPUT_PREFIX = s.RESOURCES_PATH
 INPUTS = ['X_train.csv', 'X_val.csv', 'y_train.csv', 'y_val.csv']
 OUTPUTS = ['trained_model.pkl']
 
@@ -18,19 +16,19 @@ if __name__ == '__main__':
     data dependencies: `X_train.csv`, `X_val.csv`, `y_train`, `y_val`
     data outputs: `trained_model.pkl`
     '''
-    X_train = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[0]),
+    X_train = np.loadtxt(os.path.join(s.INPUT_PREFIX, INPUTS[0]),
                          delimiter=',',
                          dtype=np.float32)
 
-    X_val = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[1]),
+    X_val = np.loadtxt(os.path.join(s.INPUT_PREFIX, INPUTS[1]),
                        delimiter=',',
                        dtype=np.float32)
 
-    y_train = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[2]),
+    y_train = np.loadtxt(os.path.join(s.INPUT_PREFIX, INPUTS[2]),
                          delimiter=',',
                          dtype=np.float32)
 
-    y_val = np.loadtxt(os.path.join(INPUT_PREFIX, INPUTS[3]),
+    y_val = np.loadtxt(os.path.join(s.INPUT_PREFIX, INPUTS[3]),
                        delimiter=',',
                        dtype=np.float32)
 
@@ -43,4 +41,4 @@ if __name__ == '__main__':
     score = clf.score(X_val, y_val)
     print('Final score: {}'.format(score))
 
-    joblib.dump(clf, os.path.join(OUTPUT_PREFIX, OUTPUTS[0]))
+    joblib.dump(clf, os.path.join(s.OUTPUT_PREFIX, OUTPUTS[0]))
