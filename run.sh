@@ -47,13 +47,14 @@ mc mb s3/inputs/
 mc mb s3/outputs/
 
 mc cp --recursive --storage-class REDUCED_REDUNDANCY resources/*.csv s3/inputs/
+mc cp --recursive --storage-class REDUCED_REDUNDANCY resources/*.pkl s3/inputs/
 
-YAML_TEMPLATE="preprocessing-job.yaml"
+YAML_TEMPLATE="job-standalone-to-debug.yaml"
 template=`cat "Kubernetes/${YAML_TEMPLATE}" | sed "s/{{JOB}}/${JOB}/g"`
 echo "$template" | kubectl create -f -
 
 
 
-YAML_TEMPLATE="dag-argo.yaml"
+YAML_TEMPLATE="argo-mocked-dag.yaml"
 template=`cat "Kubernetes/${YAML_TEMPLATE}" | sed "s/{{JOB}}/${JOB}/g"`
 echo "$template" | kubectl create -f -

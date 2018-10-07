@@ -1,23 +1,23 @@
 {
-  "preprocessing": {
+  "preprocessing.py": {
         "inputs": ["train.csv", "test.csv"],
         "outputs": ["clean_train.csv", "clean_test.csv"],
         "image": "job:latest",
         "command": ["python", "src/job/preprocessing.py"]
     },
-    "split": {
+    "split.py": {
         "inputs": ["clean_train.csv", "clean_test.csv"],
         "outputs": ["X_train.csv", "y_train.csv", "X_val.csv", "y_val.csv"] ,
         "image": "job:latest",
         "command": ["python", "src/job/split.py"]
     },
-    "train": {
+    "train.py": {
         "inputs": ["X_train.csv", "y_train.csv", "X_val.csv", "y_val.csv"],
         "outputs": ["trained_model.pkl"],
         "image": "job:latest",
         "command": ["python", "src/job/train.py"]
     },
-    "score_test": {
+    "score_test.py": {
         "inputs": ["trained_model.pkl", "clean_test.csv"],
         "outputs": ["scored_test.csv"],
         "image": "job:latest",
