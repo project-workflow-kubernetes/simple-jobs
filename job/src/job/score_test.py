@@ -1,10 +1,9 @@
 import os
 
-import numpy as np
 import pandas as pd
 from sklearn.externals import joblib
 
-from job import settings as s
+import settings as s
 
 
 INPUTS = ['trained_model.pkl', 'clean_test.csv']

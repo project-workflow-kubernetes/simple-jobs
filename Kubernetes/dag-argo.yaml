@@ -1,0 +1,101 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: dag-multiroot-
+spec:
+  entrypoint: multiroot
+  volumes:
+  - name: shared-volume
+    persistentVolumeClaim:
+      claimName: {{JOB}}-minio-pv-claim
+  templates:
+  - name: {{JOB}}-preprocessing
+    container:
+      image: {{JOB}}
+      env:
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_output_path
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "src/job/preprocessing.py"]
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: {{JOB}}-split
+    container:
+      image: {{JOB}}
+      env:
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_output_path
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "src/job/split.py"]
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: {{JOB}}-train
+    container:
+      image: {{JOB}}
+      env:
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_output_path
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "src/job/train.py"]
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: {{JOB}}-score-test
+    container:
+      image: {{JOB}}
+      env:
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {{JOB}}-config
+              key: data_output_path
+      imagePullPolicy: IfNotPresent
+      command: ["python3", "src/job/score_test.py"]
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: multiroot
+    dag:
+      tasks:
+      - name: {{JOB}}-preprocessing
+        template: {{JOB}}-preprocessing
+      - name: {{JOB}}-split
+        dependencies: [{{JOB}}-preprocessing]
+        template: {{JOB}}-split
+      - name: {{JOB}}-train
+        dependencies: [{{JOB}}-split]
+        template: {{JOB}}-train
+      - name: {{JOB}}-score-test
+        dependencies: [{{JOB}}-train]
+        template: {{JOB}}-score-test

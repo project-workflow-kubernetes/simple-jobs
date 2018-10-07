@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.neural_network import MLPClassifier
 from sklearn.externals import joblib
 
-from job import settings as s
+import settings as s
 
 INPUTS = ['X_train.csv', 'X_val.csv', 'y_train.csv', 'y_val.csv']
 OUTPUTS = ['trained_model.pkl']

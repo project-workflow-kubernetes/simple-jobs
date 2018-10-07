@@ -9,5 +9,6 @@ spec:
       - name: job1
         image: liabifano/scratch-job1:latest
         command: ["python3", "/job1/src/main.py"]
-      restartPolicy: OnFailure
+        restartPolicy: Never
+      # restartPolicy: OnFailure
   backoffLimit: 10
