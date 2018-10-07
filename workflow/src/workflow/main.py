@@ -1,9 +1,10 @@
 import os
 import json
-import numpy as np
 
 import argparse
 import networkx as nx
+
+from workflow import argo
 
 
 DEPENDENCIES_FILE = os.path.join(os.path.abspath(
@@ -13,11 +14,13 @@ RESOURCES_PATH =  os.path.join(os.path.abspath(
 
 
 def get_all_files(dependencies):
+    # TODO: fix for primary inputs like train.csv and test.csv
     all_scripts = list(dependencies.keys())
     all_inputs = [n for m in [x['inputs']
                               for x in dependencies.values()] for n in m]
     all_outputs = [n for m in [x['outputs']
                                for x in dependencies.values()] for n in m]
+
     return list(set(all_scripts + all_outputs + all_inputs))
 
 
@@ -87,8 +90,18 @@ if __name__ == '__main__':
         raise Exception('Not valid DAG, check your dependencies.json file')
 
     next_tasks = next_tasks(dag, changed_file)
-    requeried_inputs = dependencies[changed_file]['inputs']
+    requeried_inputs = dependencies[next_tasks[0]]['inputs']
 
-    print(next_tasks)
-    print(requeried_inputs)
-    print(RESOURCES_PATH)
+    data_to_run = {}
+
+    for t in next_tasks:
+        data_to_run[t] = {'image': dependencies[t]['image'],
+                          'command': dependencies[t]['command']}
+
+    yaml_file = argo.build_argo_yaml(next_tasks, data_to_run, job_name)
+
+    # TODO: Change it do use yaml library, it is nasty
+    text_file = open(os.path.join(RESOURCES_PATH, "argo-dag.yaml"), "w")
+    text_file.write(yaml_file)
+    text_file.close()
+

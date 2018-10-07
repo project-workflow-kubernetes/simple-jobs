@@ -20,6 +20,7 @@ setup(name='workflow',
           'yapf==0.23.0',
           'jupyter-console==5.2.0',
           'flake8',
+          'PyYAML==3.13'
       ],
       include_package_data=True,
       zip_safe=False)
