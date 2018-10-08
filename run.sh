@@ -21,6 +21,7 @@ done
 
 
 function shutdown_infra {
+
     if ! [[ -z $(kubectl get services | grep job-minio-service) ]];
     then
         declare -a templates=("minio-standalone-pvc.yaml" "minio-standalone-deployment.yaml"
@@ -45,11 +46,14 @@ function shutdown_infra {
 
     if ! [[ -z $(kubectl get wf | grep ${JOB}) ]];
     then
-        echo "TODO"
+        kubectl create -f workflow/resources/argo-dag.yaml
+        kubectl delete wf --all
     fi;
+
+    kubectl delete ns argo
+    kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.0/manifests/install.yaml
 }
 
-shutdown_infra
 
 echo
 echo "Generating DAG file"
@@ -100,8 +104,9 @@ done
 echo
 echo "Deploying Argo in Kubernetes"
 echo "---------------------------------------------------------------------------------"
-# TODO
-
+kubectl create ns argo
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.0/manifests/install.yaml
+# kubectl -n argo port-forward deployment/argo-ui 8001:8001
 
 echo
 echo "Waiting until Minio's endpoint is OK"
@@ -115,26 +120,33 @@ echo "--------------------------------------------------------------------------
 mc config host add s3 $(minikube service job-minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
 mc mb s3/inputs/
 mc mb s3/outputs/
-
+# while read i; do
+#   mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/"$i" s3/inputs/
+# done <workflow/resources/required_inputs.txt
+# TODO make it work because today everyone read from `inputs`
 mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/*.csv s3/inputs/
 mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/*.pkl s3/inputs/
 
 echo
+echo
 echo "Running DAG"
 echo "---------------------------------------------------------------------------------"
-# # YAML_TEMPLATE="argo-mocked-dag.yaml"
-# # template=`cat "Kubernetes/${YAML_TEMPLATE}" | sed "s/{{JOB}}/${JOB}/g"`
-# # echo "$template" | kubectl create -f -
-
+kubectl create -f workflow/resources/argo-dag.yaml
+# TODO: get the entire dag name on the fly
+while [ $(argo list | grep dag-job | grep Succeeded | awk '{print $2}' | wc -l) == 0 ]
+do
+    sleep 1
+done
 
 echo
-echo "DAG is finished, the files available are:"
+echo "DAG is finished, the files available in bucket outputs are:"
 echo "---------------------------------------------------------------------------------"
+mc ls s3/outputs/
 
 echo
 echo "Would you like to shutdown the infra for ${JOB}? (y/n)"
 read do_shutdown
-if [ $do_shutdown = "y" ]
+if [[ $do_shutdown = "y" ]]
 then
     shutdown_infra
-fi
+fi;

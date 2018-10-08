@@ -10,63 +10,6 @@ spec:
     persistentVolumeClaim:
       claimName: job-minio-pv-claim
   templates:
-  - name: job-preprocessing-py
-    container:
-      image: job:latest
-      env:
-        - name: DATA_INPUT_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: job-config
-              key: data_input_path
-        - name: DATA_OUTPUT_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: job-config
-              key: data_output_path
-      imagePullPolicy: IfNotPresent
-      command: ['python', 'src/job/preprocessing.py']
-      volumeMounts:
-        - name: shared-volume
-          mountPath: /data
-  - name: job-split-py
-    container:
-      image: job:latest
-      env:
-        - name: DATA_INPUT_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: job-config
-              key: data_input_path
-        - name: DATA_OUTPUT_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: job-config
-              key: data_output_path
-      imagePullPolicy: IfNotPresent
-      command: ['python', 'src/job/split.py']
-      volumeMounts:
-        - name: shared-volume
-          mountPath: /data
-  - name: job-train-py
-    container:
-      image: job:latest
-      env:
-        - name: DATA_INPUT_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: job-config
-              key: data_input_path
-        - name: DATA_OUTPUT_PATH
-          valueFrom:
-            configMapKeyRef:
-              name: job-config
-              key: data_output_path
-      imagePullPolicy: IfNotPresent
-      command: ['python', 'src/job/train.py']
-      volumeMounts:
-        - name: shared-volume
-          mountPath: /data
   - name: job-score-test-py
     container:
       image: job:latest
@@ -89,14 +32,5 @@ spec:
   - name: job
     dag:
       tasks:
-      - name: job-preprocessing-py
-        template: job-preprocessing-py
-      - name: job-split-py
-        dependencies: [job-preprocessing-py]
-        template: job-split-py
-      - name: job-train-py
-        dependencies: [job-split-py]
-        template: job-train-py
       - name: job-score-test-py
-        dependencies: [job-train-py]
         template: job-score-test-py

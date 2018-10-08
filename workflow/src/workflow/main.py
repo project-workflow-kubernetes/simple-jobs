@@ -9,7 +9,7 @@ from workflow import argo
 
 DEPENDENCIES_FILE = os.path.join(os.path.abspath(
     os.path.join(__file__, '../../../..')), 'dependencies.json')
-RESOURCES_PATH =  os.path.join(os.path.abspath(
+RESOURCES_PATH = os.path.join(os.path.abspath(
     os.path.join(__file__, '../../../')), 'resources')
 
 
@@ -102,10 +102,12 @@ if __name__ == '__main__':
 
     # TODO: Change it do use yaml library, it is nasty
     yaml_file_path = os.path.join(RESOURCES_PATH, "argo-dag.yaml")
+    inputs_file_path = os.path.join(RESOURCES_PATH, "required_inputs.txt")
+
     text_file = open(yaml_file_path, "w")
     text_file.write(yaml_file)
     text_file.close()
 
-    print(yaml_file_path)
-    print()
-
+    with open(inputs_file_path, 'w') as f:
+        for item in requeried_inputs:
+            f.write("%s\n" % item)
