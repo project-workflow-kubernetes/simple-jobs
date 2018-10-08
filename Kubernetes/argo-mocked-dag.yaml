@@ -85,7 +85,7 @@ spec:
       volumeMounts:
         - name: shared-volume
           mountPath: /data
-  - name: {{JOB}}
+  - name: multiroot
     dag:
       tasks:
       - name: {{JOB}}-preprocessing

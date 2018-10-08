@@ -70,8 +70,8 @@ def next_tasks(dag, changed_step):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("changed_file", help="changed file", type=str)
     parser.add_argument("job_name", help="job_name", type=str)
+    parser.add_argument("changed_file", help="changed file", type=str)
     args = parser.parse_args()
     changed_file = args.changed_file
     job_name = args.job_name
@@ -101,7 +101,11 @@ if __name__ == '__main__':
     yaml_file = argo.build_argo_yaml(next_tasks, data_to_run, job_name)
 
     # TODO: Change it do use yaml library, it is nasty
-    text_file = open(os.path.join(RESOURCES_PATH, "argo-dag.yaml"), "w")
+    yaml_file_path = os.path.join(RESOURCES_PATH, "argo-dag.yaml")
+    text_file = open(yaml_file_path, "w")
     text_file.write(yaml_file)
     text_file.close()
+
+    print(yaml_file_path)
+    print()
 

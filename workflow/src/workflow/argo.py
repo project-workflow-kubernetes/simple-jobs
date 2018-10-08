@@ -49,8 +49,7 @@ TASKS = """
 
 
 def build_argo_yaml(tasks_to_run, data_to_run, job_name):
-    # TODO: make better replacement
-    # TODO: put everything in a dicionary and not let nasty like it
+    # TODO: put everything in a dicionary with PyYAML not let nasty like it
     header = ARGO_HEADER.format(job_name=job_name)
 
     templates = [TEMPLATES.format(task_name=t.replace('.', '-').replace('_', '-'),
