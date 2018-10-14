@@ -4,3 +4,4 @@ RESOURCES_PATH = os.path.join(os.path.abspath(os.path.join(__file__, '../../..')
 
 INPUT_PREFIX = os.environ['DATA_INPUT_PATH'] if os.environ['DATA_INPUT_PATH'] else RESOURCES_PATH
 OUTPUT_PREFIX = os.environ['DATA_OUTPUT_PATH'] if os.environ['DATA_OUTPUT_PATH'] else RESOURCES_PATH
+LOGS_PREFIX = os.environ['LOGS_OUTPUT_PATH'] if os.environ['LOGS_OUTPUT_PATH'] else os.path.join(RESOURCES_PATH, 'logs')

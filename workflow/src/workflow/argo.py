@@ -27,6 +27,11 @@ TEMPLATES = """
             configMapKeyRef:
               name: {job_name}-config
               key: data_output_path
+        - name: LOGS_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: {job_name}-config
+              key: data_logs_path
       imagePullPolicy: IfNotPresent
       command: {command_to_run}
       volumeMounts:
