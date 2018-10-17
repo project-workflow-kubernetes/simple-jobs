@@ -32,13 +32,13 @@ def task(train, test):
 
 if __name__ == '__main__':
     try:
-        s.logging.warning('Starting {file}'.format(file=FILENAME))
+        s.logging.info('Starting {file}'.format(file=FILENAME))
 
         inputs = h.read_inputs(s.INPUT_PREFIX, INPUTS_FILES)
         outputs = task(*inputs)
-        h.save_outputs(s.OUTPUT_PREFIX, outputs, OUTPUTS_FILES)
+        h.save_outputs(s.OUTPUT_PREFIX, outputs, OUTPUTS_FILES, FILENAME)
 
-        s.logging.warning('Finished {file}'.format(file=FILENAME))
+        s.logging.info('Finished {file}'.format(file=FILENAME))
 
     except Exception as e:
         s.logging.error(str(e))

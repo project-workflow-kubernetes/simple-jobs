@@ -29,6 +29,11 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
+        - name: METADA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job-config
+              key: data_metadata_path
       imagePullPolicy: IfNotPresent
       command: ['python', 'src/job/preprocessing.py']
       volumeMounts:
@@ -53,6 +58,11 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
+        - name: METADA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job-config
+              key: data_metadata_path
       imagePullPolicy: IfNotPresent
       command: ['python', 'src/job/split.py']
       volumeMounts:
@@ -77,6 +87,11 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
+        - name: METADA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job-config
+              key: data_metadata_path
       imagePullPolicy: IfNotPresent
       command: ['python', 'src/job/train.py']
       volumeMounts:
@@ -101,6 +116,11 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
+        - name: METADA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job-config
+              key: data_metadata_path
       imagePullPolicy: IfNotPresent
       command: ['python', 'src/job/score_test.py']
       volumeMounts:

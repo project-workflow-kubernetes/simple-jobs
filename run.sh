@@ -11,7 +11,7 @@ LOGS_DATA_PATH='/data/data/'
 METADATA_DATA_PATH='/data/data/'
 
 
-while getopts ":f:b:r:" opt; do
+while getopts ":f:b:r:m" opt; do
   case $opt in
     f) CHANGED_FILE="$OPTARG";; # file's name
     b) BUILD_DOCKERS="$OPTARG";; # `n` by default and `y` to build
@@ -52,7 +52,6 @@ function shutdown_infra {
         kubectl delete wf --all
     fi;
 
-    # kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.0/manifests/install.yaml
 }
 
 shutdown_infra
@@ -110,6 +109,7 @@ echo "--------------------------------------------------------------------------
 # kubectl create ns argo
 # kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.2.0/manifests/install.yaml
 # kubectl patch svc argo-ui -n argo -p '{"spec": {"type": "LoadBalancer"}}'
+# minikube service -n argo --url argo-ui
 
 echo
 echo "Waiting until Minio's endpoint is OK"
@@ -121,13 +121,12 @@ echo
 echo "Creating Buckets and Transfering required files to Minio"
 echo "---------------------------------------------------------------------------------"
 mc config host add s3 $(minikube service job-minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+
 mc mb s3/data/
-# while read i; do
-#   mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/"$i" s3/inputs/
-# done <workflow/resources/required_inputs.txt
-# TODO make it work because today everyone read from `inputs`
-mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/*.csv s3/data/
-mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/*.pkl s3/data/
+
+while read i; do
+  mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/"$i" s3/data/
+done <workflow/resources/required_inputs.txt
 
 echo
 echo

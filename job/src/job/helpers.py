@@ -17,7 +17,7 @@ def read_inputs(prefix_path, inputs_files):
         file_format = i.split('.')[-1]
         path = os.path.join(prefix_path, i)
 
-        s.logging.warning('Reading file: {file}'.format(file=path))
+        s.logging.info('Reading file: {file}'.format(file=path))
 
         if file_format == 'csv':
             inputs.append(pd.read_csv(path, **inputs_files[i]))
@@ -35,20 +35,19 @@ def read_inputs(prefix_path, inputs_files):
     return inputs
 
 
-def save_outputs(prefix_path, outputs, outputs_files):
+def save_outputs(prefix_path, outputs, outputs_files, processor):
 
     for i, o in enumerate(outputs_files):
 
         file_format = o.split('.')[-1]
         path = os.path.join(prefix_path, o)
 
-        s.logging.warning('Saving file: {file}'.format(file=path))
+        s.logging.info('Saving file: {file}'.format(file=path))
 
         if file_format == 'csv':
             outputs[i].to_csv(path, index=False, **outputs_files[o])
 
         elif file_format == 'pkl':
-            # import pdb; pdb.set_trace()
             joblib.dump(outputs[i], path, **outputs_files[o])
 
         elif file_format == 'txt':
