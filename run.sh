@@ -7,7 +7,8 @@ MINIO_SECRET_KEY="minio1234"
 STORAGE_SIZE="5Gi"
 INPUT_DATA_PATH='/data/data/'
 OUTPUT_DATA_PATH='/data/data/'
-LOGS_DATA_PATH='/data/logs/'
+LOGS_DATA_PATH='/data/data/'
+METADATA_DATA_PATH='/data/data/'
 
 
 while getopts ":f:b:r:" opt; do
@@ -83,7 +84,8 @@ kubectl create configmap ${JOB}-config  --from-literal=minio_access_key=${MINIO_
         --from-literal=minio_secret_key=${MINIO_SECRET_KEY} \
         --from-literal=data_input_path=${INPUT_DATA_PATH} \
         --from-literal=data_output_path=${OUTPUT_DATA_PATH} \
-        --from-literal=data_logs_path=${LOGS_DATA_PATH}
+        --from-literal=data_logs_path=${LOGS_DATA_PATH} \
+        --from-literal=data_metadata_path=${METADATA_DATA_PATH}
 
 echo
 echo "Deploying Minio in a PVC in Kubernetes"
@@ -119,7 +121,6 @@ echo
 echo "Creating Buckets and Transfering required files to Minio"
 echo "---------------------------------------------------------------------------------"
 mc config host add s3 $(minikube service job-minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
-mc mb s3/logs/
 mc mb s3/data/
 # while read i; do
 #   mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/"$i" s3/inputs/

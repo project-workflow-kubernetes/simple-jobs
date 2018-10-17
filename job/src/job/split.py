@@ -5,11 +5,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 import settings as s
+import helpers as h
 
 
-INPUTS = ['clean_train.csv']
-OUTPUTS = ['X_train.csv', 'X_val.csv', 'y_train.csv', 'y_val.csv']
-
+INPUTS_FILES = {'clean_train.csv': {}}
+OUTPUTS_FILES = {'X_train.txt': {'delimiter': ','},
+                 'X_val.txt': {'delimiter': ','},
+                 'y_train.txt': {'delimiter': ','},
+                 'y_val.txt': {'delimiter': ','}}
+FILENAME = os.path.basename(os.path.abspath(__file__)).split('.')[0]
 
 
 def split(df):
@@ -18,20 +22,23 @@ def split(df):
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
 
+def task(clean_train):
+    '''
+    data dependencies: `clean_train`
+    data outputs: `X_train`; `X_val`; `y_train`; `y_test`
+    '''
+    return split(clean_train)
 
 
 if __name__ == '__main__':
-    '''
-    data dependencies: `train.csv`
-    data outputs: `X_train.csv`; `X_val.csv`; `y_train.csv`; `y_test`
-    '''
-    input_path = os.path.join(s.INPUT_PREFIX, INPUTS[0])
 
-    df = pd.read_csv(input_path)
+    try:
+        s.logging.warning('Starting {file}'.format(file=FILENAME))
 
-    X_train, X_val, y_train, y_val = split(df)
+        inputs = h.read_inputs(s.INPUT_PREFIX, INPUTS_FILES)
+        outputs = task(*inputs)
+        h.save_outputs(s.OUTPUT_PREFIX, outputs, OUTPUTS_FILES)
 
-    np.savetxt(os.path.join(s.OUTPUT_PREFIX, OUTPUTS[0]), X_train, delimiter=',')
-    np.savetxt(os.path.join(s.OUTPUT_PREFIX, OUTPUTS[1]), X_val, delimiter=',')
-    np.savetxt(os.path.join(s.OUTPUT_PREFIX, OUTPUTS[2]), y_train, delimiter=',')
-    np.savetxt(os.path.join(s.OUTPUT_PREFIX, OUTPUTS[3]), y_val, delimiter=',')
+    except Exception as e:
+        s.logging.error(str(e))
+        raise e
