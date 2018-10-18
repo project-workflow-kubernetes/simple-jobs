@@ -5,6 +5,10 @@ metadata:
   generateName: dag-{job_name}-
 spec:
   entrypoint: {job_name}
+  arguments:
+    parameters:
+    - name: log-level
+      value: INFO
   volumes:
   - name: shared-volume
     persistentVolumeClaim:
@@ -17,6 +21,8 @@ TEMPLATES = """
     container:
       image: {container_id}
       env:
+        - name: LOG_LEVEL
+          value: "{{workflow.parameters.log-level}}"
         - name: DATA_INPUT_PATH
           valueFrom:
             configMapKeyRef:

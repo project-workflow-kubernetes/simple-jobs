@@ -1,45 +1,48 @@
 #!/usr/bin/env bash
 
-JOB="job"
 MINIO_RELEASE="RELEASE.2018-10-05T01-03-03Z"
 MINIO_ACCESS_KEY="minio"
 MINIO_SECRET_KEY="minio1234"
 STORAGE_SIZE="5Gi"
-INPUT_DATA_PATH='/data/data/'
-OUTPUT_DATA_PATH='/data/data/'
-LOGS_DATA_PATH='/data/data/'
-METADATA_DATA_PATH='/data/data/'
 
 
-while getopts ":f:b:r:m" opt; do
+while getopts ":f:b:r:i:j:" opt; do
   case $opt in
     f) CHANGED_FILE="$OPTARG";; # file's name
     b) BUILD_DOCKERS="$OPTARG";; # `n` by default and `y` to build
-    r) RUNNING_MODE=="$OPTARG";; # cluster by default and `minikube` to run in minikube
+    r) RUNNING_MODE="$OPTARG";; # cluster by default and `minikube` to run in minikube
+    i) RUN_ID="$OPTARG";;
+    j) JOB_NAME="$OPTARG";;
     \?) echo "Invalid option -$OPTARG" >&2
     ;;
   esac
 done
 
+JOB="${JOB_NAME}${RUN_ID}"
+INPUT_DATA_PATH="/data/${JOB}/"
+OUTPUT_DATA_PATH="/data/${JOB}/"
+LOGS_DATA_PATH="/data/${JOB}/"
+METADATA_DATA_PATH="/data/${JOB}/"
+
 
 function shutdown_infra {
 
-    # if ! [[ -z $(kubectl get services | grep job-minio-service) ]];
-    # then
-    #     declare -a templates=("minio-standalone-pvc.yaml" "minio-standalone-deployment.yaml"
-    #                           "minio-standalone-service.yaml" "minio-ingress.yaml")
-    #     for i in "${templates[@]}"
-    #     do
-    #         echo "$i"
-    #         temp=`cat "Kubernetes/"$i"" \
-    #               | sed "s/{{JOB}}/${JOB}/g" \
-    #               | sed "s/{{MINIO_RELEASE}}/${MINIO_RELEASE}/g" \
-    #               | sed "s/{{MINIO_ACCESS_KEY}}/${MINIO_ACCESS_KEY}/g" \
-    #               | sed "s/{{MINIO_SECRET_KEY}}/${MINIO_SECRET_KEY}/g" \
-    #               | sed "s/{{STORAGE_SIZE}}/${STORAGE_SIZE}/g"`
-    #         echo "$temp" | kubectl delete -f -
-    #     done
-    # fi;
+    if ! [[ -z $(kubectl get services | grep job-minio-service) ]];
+    then
+        declare -a templates=("minio-standalone-pvc.yaml" "minio-standalone-deployment.yaml"
+                              "minio-standalone-service.yaml" "minio-ingress.yaml")
+        for i in "${templates[@]}"
+        do
+            echo "$i"
+            temp=`cat "Kubernetes/"$i"" \
+                  | sed "s/{{JOB}}/${JOB}/g" \
+                  | sed "s/{{MINIO_RELEASE}}/${MINIO_RELEASE}/g" \
+                  | sed "s/{{MINIO_ACCESS_KEY}}/${MINIO_ACCESS_KEY}/g" \
+                  | sed "s/{{MINIO_SECRET_KEY}}/${MINIO_SECRET_KEY}/g" \
+                  | sed "s/{{STORAGE_SIZE}}/${STORAGE_SIZE}/g"`
+            echo "$temp" | kubectl delete -f -
+        done
+    fi;
 
     if ! [[ -z $(kubectl get configmap | grep ${JOB}-config) ]];
     then
@@ -59,7 +62,7 @@ echo
 echo "Generating DAG file"
 echo "---------------------------------------------------------------------------------"
 source activate workflow
-# python workflow/src/workflow/main.py ${JOB} ${CHANGED_FILE}
+python workflow/src/workflow/main.py ${JOB} ${CHANGED_FILE}
 source deactivate
 
 
@@ -72,7 +75,7 @@ then
     echo
     echo "Building Docker Images"
     echo "---------------------------------------------------------------------------------"
-    docker build -f `pwd`/${JOB}/Dockerfile `pwd`/${JOB} -t ${JOB}
+    docker build -f `pwd`/${JOB_NAME}/Dockerfile `pwd`/${JOB_NAME} -t ${JOB_NAME}
 fi
 
 
@@ -115,17 +118,17 @@ echo
 echo "Waiting until Minio's endpoint is OK"
 echo "---------------------------------------------------------------------------------"
 # TODO: batter way to wait the endpoint
-$(minikube service job-minio-service --url)
+$(minikube service ${JOB}-minio-service --url)
 
 echo
 echo "Creating Buckets and Transfering required files to Minio"
 echo "---------------------------------------------------------------------------------"
-mc config host add s3 $(minikube service job-minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+mc config host add s3 $(minikube service ${JOB}-minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
 
-mc mb s3/data/
+mc mb s3/${JOB}/
 
 while read i; do
-  mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB}/resources/"$i" s3/data/
+  mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB_NAME}/resources/"$i" s3/${JOB}/
 done <workflow/resources/required_inputs.txt
 
 echo
@@ -142,7 +145,7 @@ done
 echo
 echo "DAG is finished, the files available in bucket outputs are:"
 echo "---------------------------------------------------------------------------------"
-mc ls s3/data/
+mc ls s3/${JOB}/
 
 
 echo
