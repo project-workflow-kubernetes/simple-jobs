@@ -24,22 +24,22 @@ done
 
 function shutdown_infra {
 
-    if ! [[ -z $(kubectl get services | grep job-minio-service) ]];
-    then
-        declare -a templates=("minio-standalone-pvc.yaml" "minio-standalone-deployment.yaml"
-                              "minio-standalone-service.yaml" "minio-ingress.yaml")
-        for i in "${templates[@]}"
-        do
-            echo "$i"
-            temp=`cat "Kubernetes/"$i"" \
-                  | sed "s/{{JOB}}/${JOB}/g" \
-                  | sed "s/{{MINIO_RELEASE}}/${MINIO_RELEASE}/g" \
-                  | sed "s/{{MINIO_ACCESS_KEY}}/${MINIO_ACCESS_KEY}/g" \
-                  | sed "s/{{MINIO_SECRET_KEY}}/${MINIO_SECRET_KEY}/g" \
-                  | sed "s/{{STORAGE_SIZE}}/${STORAGE_SIZE}/g"`
-            echo "$temp" | kubectl delete -f -
-        done
-    fi;
+    # if ! [[ -z $(kubectl get services | grep job-minio-service) ]];
+    # then
+    #     declare -a templates=("minio-standalone-pvc.yaml" "minio-standalone-deployment.yaml"
+    #                           "minio-standalone-service.yaml" "minio-ingress.yaml")
+    #     for i in "${templates[@]}"
+    #     do
+    #         echo "$i"
+    #         temp=`cat "Kubernetes/"$i"" \
+    #               | sed "s/{{JOB}}/${JOB}/g" \
+    #               | sed "s/{{MINIO_RELEASE}}/${MINIO_RELEASE}/g" \
+    #               | sed "s/{{MINIO_ACCESS_KEY}}/${MINIO_ACCESS_KEY}/g" \
+    #               | sed "s/{{MINIO_SECRET_KEY}}/${MINIO_SECRET_KEY}/g" \
+    #               | sed "s/{{STORAGE_SIZE}}/${STORAGE_SIZE}/g"`
+    #         echo "$temp" | kubectl delete -f -
+    #     done
+    # fi;
 
     if ! [[ -z $(kubectl get configmap | grep ${JOB}-config) ]];
     then
@@ -59,7 +59,7 @@ echo
 echo "Generating DAG file"
 echo "---------------------------------------------------------------------------------"
 source activate workflow
-python workflow/src/workflow/main.py ${JOB} ${CHANGED_FILE}
+# python workflow/src/workflow/main.py ${JOB} ${CHANGED_FILE}
 source deactivate
 
 

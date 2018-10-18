@@ -1,12 +1,11 @@
 import os
-import logging
+import time
 
 import pandas as pd
 import numpy as np
 from sklearn.externals import joblib
 
 import settings as s
-
 
 
 def read_inputs(prefix_path, inputs_files):
@@ -35,7 +34,7 @@ def read_inputs(prefix_path, inputs_files):
     return inputs
 
 
-def save_outputs(prefix_path, outputs, outputs_files, processor):
+def save_outputs(prefix_path, outputs, outputs_files, process):
 
     for i, o in enumerate(outputs_files):
 
@@ -56,3 +55,11 @@ def save_outputs(prefix_path, outputs, outputs_files, processor):
         else:
             raise ValueError(
                 'The format {format} is not valid'.format(format=file_format))
+
+        saved_time = time.ctime(os.path.getmtime(path))
+        metadata_info = '{file},{process},{time}\n'.format(file=o,
+                                                           process=process,
+                                                           time=saved_time)
+
+        with open(s.METADATA_PATH, "a") as fp:
+            fp.write(metadata_info)

@@ -29,7 +29,7 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job-config
@@ -58,7 +58,7 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job-config
@@ -87,7 +87,7 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job-config
@@ -116,7 +116,7 @@ spec:
             configMapKeyRef:
               name: job-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job-config
