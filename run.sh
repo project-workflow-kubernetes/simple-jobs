@@ -123,13 +123,20 @@ $(minikube service ${JOB}-minio-service --url)
 echo
 echo "Creating Buckets and Transfering required files to Minio"
 echo "---------------------------------------------------------------------------------"
-mc config host add s3 $(minikube service ${JOB}-minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+# mc config host add s3 s3-endpoint
+mc config host add s3tmp $(minikube service ${JOB}-minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+# temp; put true endpoint here
+mc config host add s3 http://10.151.8.145:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY} # everyone have the same creation time...
 
-mc mb s3/${JOB}/
+mc mb s3tmp/${JOB}/
+
+LAST_RUN=$(mc ls s3/${JOB_NAME}/ | awk '{print $0}' | sort -r | head -n 1 | awk '{print $5}')
 
 while read i; do
-  mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB_NAME}/resources/"$i" s3/${JOB}/
+  mc cp --recursive --storage-class REDUCED_REDUNDANCY s3/${JOB_NAME}/${LAST_RUN}/"$i" s3tmp/${JOB}/
 done <workflow/resources/required_inputs.txt
+# new data: mc cp --recursive --storage-class REDUCED_REDUNDANCY ${JOB_NAME}/resources/ s3tmp/${JOB}/
+
 
 echo
 echo
@@ -143,9 +150,24 @@ do
 done
 
 echo
-echo "DAG is finished, the files available in bucket outputs are:"
+echo "DAG is finished, the files available in the bucket are:"
 echo "---------------------------------------------------------------------------------"
-mc ls s3/${JOB}/
+mc ls s3tmp/${JOB}/
+# while read i; do
+#   mc cp --recursive --storage-class REDUCED_REDUNDANCY s3/${JOB_NAME}/${LAST_RUN}/"$i" s3tmp/${JOB}/
+# done <s3tmp/${JOB}/metadata.txt
+
+
+# while read i; do
+#   mc cp --recursive --storage-class REDUCED_REDUNDANCY s3tmp/job1/* s3/job/1234/
+# done <s3tmp/job1/metadata.txt
+
+
+# echo
+# echo "Transfering files to persistency file"
+# echo "---------------------------------------------------------------------------------"
+# mc mb s3/${JOB}/${RUN_ID}
+
 
 
 echo

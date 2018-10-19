@@ -35,7 +35,7 @@ spec:
             configMapKeyRef:
               name: job1-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job1-config
@@ -66,7 +66,7 @@ spec:
             configMapKeyRef:
               name: job1-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job1-config
@@ -97,7 +97,7 @@ spec:
             configMapKeyRef:
               name: job1-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job1-config
@@ -128,7 +128,7 @@ spec:
             configMapKeyRef:
               name: job1-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: job1-config
@@ -142,13 +142,13 @@ spec:
     dag:
       tasks:
       - name: job1-preprocessing-py
-        template: job-preprocessing-py
+        template: job1-preprocessing-py
       - name: job1-split-py
         dependencies: [job1-preprocessing-py]
-        template: job-split-py
+        template: job1-split-py
       - name: job1-train-py
         dependencies: [job1-split-py]
-        template: job-train-py
+        template: job1-train-py
       - name: job1-score-test-py
         dependencies: [job1-train-py]
-        template: job-score-test-py
+        template: job1-score-test-py

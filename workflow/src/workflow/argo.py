@@ -38,7 +38,7 @@ TEMPLATES = """
             configMapKeyRef:
               name: {job_name}-config
               key: data_logs_path
-        - name: METADA_OUTPUT_PATH
+        - name: METADATA_OUTPUT_PATH
           valueFrom:
             configMapKeyRef:
               name: {job_name}-config
@@ -56,12 +56,12 @@ ARGO_DAG_HEADER = """
 
 FIRST_TASK = """
       - name: {job_name}-{task_name}
-        template: job-{task_name}"""
+        template: {job_name}-{task_name}"""
 
 TASKS = """
       - name: {job_name}-{task_name}
         dependencies: [{job_name}-{prev_task_name}]
-        template: job-{task_name}"""
+        template: {job_name}-{task_name}"""
 
 
 def build_argo_yaml(tasks_to_run, data_to_run, job_name):
