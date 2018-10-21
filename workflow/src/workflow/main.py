@@ -72,9 +72,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("job_name", help="job_name", type=str)
     parser.add_argument("changed_file", help="changed file", type=str)
+    parser.add_argument("id", help="run id", type=str)
     args = parser.parse_args()
     changed_file = args.changed_file
     job_name = args.job_name
+    run_id = args.id
 
     dependencies = json.load(open(DEPENDENCIES_FILE))
 
@@ -90,6 +92,7 @@ if __name__ == '__main__':
         raise Exception('Not valid DAG, check your dependencies.json file')
 
     next_tasks = next_tasks(dag, changed_file)
+    # TODO: remove the changed file from the list si jamais
     requeried_inputs = dependencies[next_tasks[0]]['inputs']
 
     data_to_run = {}
@@ -98,11 +101,11 @@ if __name__ == '__main__':
         data_to_run[t] = {'image': dependencies[t]['image'],
                           'command': dependencies[t]['command']}
 
-    yaml_file = argo.build_argo_yaml(next_tasks, data_to_run, job_name)
+    yaml_file = argo.build_argo_yaml(next_tasks, data_to_run, job_name, run_id)
 
     # TODO: Change it do use yaml library, it is nasty
-    yaml_file_path = os.path.join(RESOURCES_PATH, "argo-dag.yaml")
-    inputs_file_path = os.path.join(RESOURCES_PATH, "required_inputs.txt")
+    yaml_file_path = os.path.join(RESOURCES_PATH, "dag-{job_name}-{id}.yaml".format(job_name=job_name, id=run_id))
+    inputs_file_path = os.path.join(RESOURCES_PATH, "inputs-{job_name}-{id}.txt".format(job_name=job_name, id=run_id))
 
     text_file = open(yaml_file_path, "w")
     text_file.write(yaml_file)

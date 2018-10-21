@@ -2,7 +2,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{JOB}}-minio-ingress
+  name: minio-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
@@ -10,10 +10,10 @@ spec:
     serviceName: default-http-backend
     servicePort: 80
   rules:
-  - host: {{JOB}}.minio.info
+  - host: minio.info
     http:
       paths:
       - path: /
         backend:
-          serviceName: {{JOB}}-minio-service
+          serviceName: minio-service
           servicePort: 9000

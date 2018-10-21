@@ -1,21 +1,21 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{JOB}}-minio
+  name: minio
 spec:
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: {{JOB}}-minio
+        app: minio
     spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: {{JOB}}-minio-pv-claim
+          claimName: minio-pv-claim
       containers:
-      - name: {{JOB}}-minio
+      - name: minio
         volumeMounts:
         - name: data
           mountPath: "/data"

@@ -61,5 +61,5 @@ def save_outputs(prefix_path, outputs, outputs_files, process):
                                                            process=process,
                                                            time=saved_time)
 
-        with open(s.METADATA_PATH, "w") as fp:
+        with open(s.METADATA_PATH, "a") as fp:
             fp.write(metadata_info)
