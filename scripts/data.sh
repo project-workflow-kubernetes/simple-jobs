@@ -103,6 +103,10 @@ case "${@: -1}" in
       down-local-storage
     exit 0
     ;;
+  (down-tmp-bucket)
+      down-tmp-bucket
+    exit 0
+    ;;
   (valid-run-id)
       valid-run-id
     exit 0
