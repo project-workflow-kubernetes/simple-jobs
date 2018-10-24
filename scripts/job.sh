@@ -49,8 +49,7 @@ function run {
 
 function wait-until-finished {
     echo $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l)
-    while [ $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l) != 1 ];
-          echo $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l)
+    while [ $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l) == 0 ];
     do
         sleep 1
     done

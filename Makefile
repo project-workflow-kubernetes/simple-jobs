@@ -38,7 +38,7 @@ run-job:
 
 
 commit-data:
-	# @bash scripts/data.sh -i ${RUN_ID} -j ${JOB} wait-until-finished
+	@bash scripts/data.sh -i ${RUN_ID} -j ${JOB} wait-until-finished
 	@bash scripts/data.sh -i ${RUN_ID} -j ${JOB} move-to-persistent
 
 
