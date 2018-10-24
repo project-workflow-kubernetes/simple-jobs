@@ -55,7 +55,7 @@ function down-storage {
 }
 
 function valid-run-id {
-    if [ $(mc ls s3fixed/${JOB_NAME}/ | awk '{print $5}' | grep ${RUN_ID} | wc -l) == 0 ];
+    if [ $(mc ls s3fixed/${JOB_NAME}/ | awk '{print $5}' | grep ${RUN_ID} | wc -l) != 0 ];
     then
         echo "Error: run_id not valid"
         exit 1

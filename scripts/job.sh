@@ -47,6 +47,16 @@ function run {
 }
 
 
+function wait-until-finished {
+    echo $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l)
+    while [ $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l) != 1 ];
+          echo $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l)
+    do
+        sleep 1
+    done
+}
+
+
 function down {
     kubectl delete configmap ${JOB_NAME}-${RUN_ID}-config
 
@@ -73,6 +83,10 @@ case "${@: -1}" in
     ;;
   (run)
       run
+    exit 0
+    ;;
+  (wait-until-finished)
+      wait-until-finished
     exit 0
     ;;
   (down)

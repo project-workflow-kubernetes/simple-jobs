@@ -1,6 +1,9 @@
-JOB=job
-RUN_ID=4
-CHANGED_FILE=train.csv
+# TODO: make some argument be optional because I don't need all of them
+JOB=$(JOB)
+RUN_ID=$(RUN_ID)
+CHANGED_FILE=$(CHANGED_FILE)
+BUILD_IMAGE=$(BUILD_IMAGE)
+
 
 help:
 	@echo "- setup-cluster: start minikube, install argo and minio in the cluster"
@@ -28,10 +31,14 @@ setup-storage:
 
 
 run-job:
+	@if [ ${BUILD_IMAGE} = "true" ]; then\
+		bash scripts/job.sh -j ${JOB} build-local-image;\
+	fi
 	@bash scripts/job.sh -i ${RUN_ID} -j ${JOB} run
 
 
 commit-data:
+	# @bash scripts/data.sh -i ${RUN_ID} -j ${JOB} wait-until-finished
 	@bash scripts/data.sh -i ${RUN_ID} -j ${JOB} move-to-persistent
 
 
@@ -40,8 +47,6 @@ run: setup-cluster setup-storage run-job commit-data
 
 down-job:
 	@bash scripts/job.sh -i ${RUN_ID} -j ${JOB} down
-	@bash scripts/data.sh down-tmp-bucket
-	@bash scripts/data.sh down-local-storage
 
 
 down-storage:

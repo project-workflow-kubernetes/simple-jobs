@@ -11,6 +11,8 @@ declare -a templates=("minio-standalone-pvc.yaml" "minio-standalone-deployment.y
                       "minio-standalone-service.yaml" "minio-ingress.yaml")
 
 function up {
+   declare -a templates=("minio-standalone-pvc.yaml" "minio-standalone-deployment.yaml"
+                         "minio-standalone-service.yaml" "minio-ingress.yaml")
    for i in "${templates[@]}"
    do
        echo "$i"
@@ -27,6 +29,8 @@ function up {
 
 
 function down {
+    declare -a templates=("minio-ingress.yaml"   "minio-standalone-service.yaml"
+                          "minio-standalone-deployment.yaml" "minio-standalone-pvc.yaml")
     for i in "${templates[@]}"
     do
        echo "$i"
