@@ -3,36 +3,41 @@ import os
 import numpy as np
 
 from sklearn.neural_network import MLPClassifier
-from sklearn.externals import joblib
 
-from job import settings as s
+import settings as s
+import helpers as h
+
+INPUTS_FILES = {'X_train.txt': {'delimiter': ',', 'dtype': np.float32},
+                'X_val.txt': {'delimiter': ',', 'dtype': np.float32},
+                'y_train.txt': {'delimiter': ',', 'dtype': np.float32},
+                'y_val.txt': {'delimiter': ',', 'dtype': np.float32}}
+OUTPUTS_FILES = {'trained_model.pkl': {}}
+FILENAME = os.path.basename(os.path.abspath(__file__)).split('.')[0]
 
 
-if __name__ == '__main__':
+def task(X_train, X_val, y_train, y_val):
     '''
-    data dependencies: `X_train.csv`, `X_val.csv`, `y_train`, `y_val`
-    data outputs: `trained_model.pkl`
+    data dependencies: `X_train`, `X_val`, `y_train`, `y_val`
+    data outputs: `trained_model`
     '''
-    X_train = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'X_train.csv'),
-                         delimiter=',',
-                         dtype=np.float32)
-
-    X_val = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'X_val.csv'),
-                       delimiter=',',
-                       dtype=np.float32)
-
-    y_train = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'y_train.csv'),
-                         delimiter=',',
-                         dtype=np.float32)
-
-    y_val = np.loadtxt(os.path.join(s.RESOURCES_PATH, 'y_val.csv'),
-                       delimiter=',',
-                       dtype=np.float32)
-
-    clf = MLPClassifier(solver='adam', hidden_layer_sizes=350, alpha=1e-04)
+    clf = MLPClassifier(solver='adam', hidden_layer_sizes=350, alpha=1e-03)
     clf.fit(X_train, y_train)
 
     score = clf.score(X_val, y_val)
-    print('Final score: {}'.format(score))
+    s.logging.warning('Score {score}'.format(score=score))
 
-    joblib.dump(clf, os.path.join(s.RESOURCES_PATH, 'trained_model.pkl'))
+    return [clf]
+
+
+if __name__ == '__main__':
+
+    try:
+        s.logging.info('Starting {file}'.format(file=FILENAME))
+
+        inputs = h.read_inputs(s.INPUT_PREFIX, INPUTS_FILES)
+        outputs = task(*inputs)
+        h.save_outputs(s.OUTPUT_PREFIX, outputs, OUTPUTS_FILES, FILENAME)
+
+    except Exception as e:
+        s.logging.error(str(e))
+        raise e

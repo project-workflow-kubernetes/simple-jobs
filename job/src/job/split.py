@@ -1,36 +1,42 @@
 import os
 
-import numpy as np
-import pandas as pd
 from sklearn.model_selection import train_test_split
 
 import settings as s
+import helpers as h
 
 
-def split(prefix_path):
-    input_path = os.path.join(prefix_path, 'clean_train.csv')
-    output_paths = [os.path.join(prefix_path, x + '.csv')
-                    for x in ['X_train', 'X_val', 'y_train', 'y_test']]
+INPUTS_FILES = {'clean_train.csv': {}}
+OUTPUTS_FILES = {'X_train.txt': {'delimiter': ','},
+                 'X_val.txt': {'delimiter': ','},
+                 'y_train.txt': {'delimiter': ','},
+                 'y_val.txt': {'delimiter': ','}}
+FILENAME = os.path.basename(os.path.abspath(__file__)).split('.')[0]
 
-    df = pd.read_csv(input_path)
+
+def split(df):
     X, y = df.values[:, 1:], df.values[:, 0].reshape(len(df), 1)
 
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.2, random_state=42)
+    return train_test_split(X, y, test_size=0.2, random_state=42)
 
-    np.savetxt(os.path.join(prefix_path, 'X_train' + '.csv'),
-               X_train, delimiter=',')
-    np.savetxt(os.path.join(prefix_path, 'X_val' + '.csv'),
-               X_val, delimiter=',')
-    np.savetxt(os.path.join(prefix_path, 'y_train' + '.csv'),
-               y_train, delimiter=',')
-    np.savetxt(os.path.join(prefix_path, 'y_val' + '.csv'),
-               y_val, delimiter=',')
+
+def task(clean_train):
+    '''
+    data dependencies: `clean_train`
+    data outputs: `X_train`; `X_val`; `y_train`; `y_test`
+    '''
+    return split(clean_train)
 
 
 if __name__ == '__main__':
-    '''
-    data dependencies: `train.csv`
-    data outputs: `X_train.csv`; `X_val.csv`; `y_train.csv`; `y_test`
-    '''
-    split(s.RESOURCES_PATH)
+
+    try:
+        s.logging.info('Starting {file}'.format(file=FILENAME))
+
+        inputs = h.read_inputs(s.INPUT_PREFIX, INPUTS_FILES)
+        outputs = task(*inputs)
+        h.save_outputs(s.OUTPUT_PREFIX, outputs, OUTPUTS_FILES, FILENAME)
+
+    except Exception as e:
+        s.logging.error(str(e))
+        raise e

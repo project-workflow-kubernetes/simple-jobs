@@ -1,0 +1,19 @@
+# TODO: make EXTERNAL-IP works
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: minio-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  backend:
+    serviceName: default-http-backend
+    servicePort: 80
+  rules:
+  - host: minio.info
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: minio-service
+          servicePort: 9000

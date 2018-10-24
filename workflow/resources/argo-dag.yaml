@@ -1,0 +1,154 @@
+
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: dag-job1-
+spec:
+  entrypoint: job1
+  arguments:
+    parameters:
+    - name: log-level
+      value: INFO
+  volumes:
+  - name: shared-volume
+    persistentVolumeClaim:
+      claimName: job1-minio-pv-claim
+  templates:
+  - name: job1-preprocessing-py
+    container:
+      image: job:latest
+      env:
+        - name: LOG_LEVEL
+          value: "{workflow.parameters.log-level}"
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_output_path
+        - name: LOGS_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_logs_path
+        - name: METADATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_metadata_path
+      imagePullPolicy: IfNotPresent
+      command: ['python', 'src/job/preprocessing.py']
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: job1-split-py
+    container:
+      image: job:latest
+      env:
+        - name: LOG_LEVEL
+          value: "{workflow.parameters.log-level}"
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_output_path
+        - name: LOGS_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_logs_path
+        - name: METADATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_metadata_path
+      imagePullPolicy: IfNotPresent
+      command: ['python', 'src/job/split.py']
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: job1-train-py
+    container:
+      image: job:latest
+      env:
+        - name: LOG_LEVEL
+          value: "{workflow.parameters.log-level}"
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_output_path
+        - name: LOGS_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_logs_path
+        - name: METADATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_metadata_path
+      imagePullPolicy: IfNotPresent
+      command: ['python', 'src/job/train.py']
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: job1-score-test-py
+    container:
+      image: job:latest
+      env:
+        - name: LOG_LEVEL
+          value: "{workflow.parameters.log-level}"
+        - name: DATA_INPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_input_path
+        - name: DATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_output_path
+        - name: LOGS_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_logs_path
+        - name: METADATA_OUTPUT_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: job1-config
+              key: data_metadata_path
+      imagePullPolicy: IfNotPresent
+      command: ['python', 'src/job/score_test.py']
+      volumeMounts:
+        - name: shared-volume
+          mountPath: /data
+  - name: job1
+    dag:
+      tasks:
+      - name: job1-preprocessing-py
+        template: job1-preprocessing-py
+      - name: job1-split-py
+        dependencies: [job1-preprocessing-py]
+        template: job1-split-py
+      - name: job1-train-py
+        dependencies: [job1-split-py]
+        template: job1-train-py
+      - name: job1-score-test-py
+        dependencies: [job1-train-py]
+        template: job1-score-test-py

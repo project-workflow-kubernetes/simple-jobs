@@ -1,25 +1,45 @@
 import os
+import logging
 
 import pandas as pd
 
 import settings as s
+import helpers as h
 
 
-def clean(prefix_path, train=True):
-    data_type = 'train' if train else 'test'
-    input_path = os.path.join(prefix_path, data_type + '.csv')
-    output_path = os.path.join(prefix_path, 'clean_' + data_type +'.csv')
+INPUTS_FILES = {'train.csv': {}, 'test.csv': {}}
+OUTPUTS_FILES = {'clean_train.csv': {}, 'clean_test.csv': {}}
 
-    df = pd.read_csv(input_path)
+FILENAME = os.path.basename(os.path.abspath(__file__)).split('.')[0]
+
+
+def clean(df):
     out_df = df.dropna()
 
-    out_df.to_csv(output_path, index=False)
+    return out_df
+
+
+def task(train, test):
+    '''
+    data dependencies: `train` and `test`
+    data outputs: `clean_train` and `clean_test`
+    '''
+    clean_train = clean(train)
+    clean_test = clean(test)
+
+    return [clean_train, clean_test]
 
 
 if __name__ == '__main__':
-    '''
-    data dependencies: `train.csv` and `test.csv`
-    data outputs: `clean_train.csv` and `clean_test.csv`
-    '''
-    clean(s.RESOURCES_PATH)
-    clean(s.RESOURCES_PATH, False)
+    try:
+        s.logging.info('Starting {file}'.format(file=FILENAME))
+
+        inputs = h.read_inputs(s.INPUT_PREFIX, INPUTS_FILES)
+        outputs = task(*inputs)
+        h.save_outputs(s.OUTPUT_PREFIX, outputs, OUTPUTS_FILES, FILENAME)
+
+        s.logging.info('Finished {file}'.format(file=FILENAME))
+
+    except Exception as e:
+        s.logging.error(str(e))
+        raise e

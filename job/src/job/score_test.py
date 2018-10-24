@@ -1,21 +1,37 @@
 import os
 
-import numpy as np
 import pandas as pd
 from sklearn.externals import joblib
 
-from job import settings as s
+import settings as s
+import helpers as h
+
+
+INPUTS_FILES = {'trained_model.pkl': {}, 'clean_test.csv': {}}
+OUTPUTS_FILES = {'scored_test.csv': {}}
+FILENAME = os.path.basename(os.path.abspath(__file__)).split('.')[0]
+
+
+def task(trained_model, clean_test):
+    '''
+    data dependencies: `X_test`, `trained_model`
+    data outputs: `scores_test
+    '''
+    preds = pd.DataFrame(trained_model.predict(clean_test))
+
+    return [preds]
+
 
 
 if __name__ == '__main__':
-    '''
-    data dependencies: `X_test.csv`, `trained_model.pkl`
-    data outputs: `scores_test.csv
-    '''
 
-    X_test = (pd.read_csv(os.path.join(s.RESOURCES_PATH, 'clean_test.csv'))
-              .values)
-    clf = joblib.load(os.path.join(s.RESOURCES_PATH, 'trained_model.pkl'))
-    preds = pd.DataFrame(clf.predict(X_test))
+    try:
+        s.logging.info('Starting {file}'.format(file=FILENAME))
 
-    preds.to_csv(os.path.join(s.RESOURCES_PATH, 'scores_test.csv'), index=False)
+        inputs = h.read_inputs(s.INPUT_PREFIX, INPUTS_FILES)
+        outputs = task(*inputs)
+        h.save_outputs(s.OUTPUT_PREFIX, outputs, OUTPUTS_FILES, FILENAME)
+
+    except Exception as e:
+        s.logging.error(str(e))
+        raise e
