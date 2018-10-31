@@ -65,7 +65,7 @@ TASKS = """
 
 
 def build_argo_yaml(tasks_to_run, data_to_run, job_name, run_id):
-    # TODO: put everything in a dicionary with PyYAML not let nasty like it
+    # TODO: find a better way but PYAML doesn't work as expected, it doesn't keep it in the same order
     header = ARGO_HEADER.format(job_name=job_name, run_id=run_id)
 
     templates = [TEMPLATES.format(task_name=t.replace('.', '-').replace('_', '-'),
