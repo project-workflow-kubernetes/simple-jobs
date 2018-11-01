@@ -24,14 +24,11 @@ function up {
        echo "$temp" | kubectl create -f -
    done
 
-   echo "Warning: Waiting until minio endpoint is ready..."
-
-   while [ $(kubectl get endpoints | grep minio-service | grep 172 | awk '{print $2}' | wc -l) == 0 ]
+   echo "Warning: waiting until minio endpoint is ready..."
+   while [ $(kubectl get endpoints | grep minio-service | awk '{print $2}' | grep :9000 | wc -l) == 0 ];
    do
-    sleep 1
+       sleep 1
    done
-
-   minikube service minio-service
 }
 
 

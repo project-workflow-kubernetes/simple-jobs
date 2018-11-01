@@ -19,8 +19,8 @@ METADATA_DATA_PATH="/data/${JOB_NAME}/${RUN_ID}/"
 
 
 function build-local-image {
-    eval $(minikube docker-env)
     docker build -f `pwd`/${JOB_NAME}/Dockerfile `pwd`/${JOB_NAME} -t ${JOB_NAME}
+    wait
 }
 
 function build-and-push-image {
@@ -31,8 +31,12 @@ function build-and-push-image {
 }
 
 function generate-dag {
+    if [ $(conda env list | grep workflow | wc -l) == 0 ];
+    then
+       cd workflow; make install
+    fi;
     source activate workflow
-    python workflow/src/workflow/main.py ${JOB_NAME} ${CHANGED_FILE} ${RUN_ID}
+    python src/workflow/main.py ${JOB_NAME} ${CHANGED_FILE} ${RUN_ID}
     source deactivate
 }
 
@@ -48,8 +52,8 @@ function run {
 
 
 function wait-until-finished {
-    echo $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l)
-    while [ $(argo list | grep dag-${JOB_NAME}-${RUN_ID} | grep Succeeded | awk '{print $2}' | wc -l) == 0 ];
+    WF_NAME=$(kubectl get wf | grep dag-${JOB_NAME}-${RUN_ID} | awk '{print $1}')
+    while [ $(kubectl describe wf  ${WF_NAME} | grep Finished | head -n 1 | awk '{print $3}') == "<nil>" ];
     do
         sleep 1
     done
@@ -93,7 +97,7 @@ case "${@: -1}" in
     exit 0
     ;;
   (*)
-    echo "Usage: $0 {build-local-image|build-and-push-image|generate-dag|run|down}"
+    echo "Usage: $0 {build-local-image | build-and-push-image | generate-dag | run | down}"
     exit 2
     ;;
 esac

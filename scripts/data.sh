@@ -18,7 +18,7 @@ MINIO_SECRET_KEY="minio1234"
 
 function up-tmp-bucket {
     valid-run-id
-    mc config host add s3tmp $(minikube service minio-service --url) ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+    mc config host add s3tmp http://localhost:9000 ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
     mc mb s3tmp/${JOB_NAME}/${RUN_ID}/
 }
 
@@ -28,12 +28,20 @@ function down-tmp-bucket {
 
 
 function up-local-storage {
+    if [ ! -d "s3/job" ];
+    then
+        mkdir -p s3/job/0/
+        cp job/resources/train.csv s3/job/0/
+        cp job/resources/test.csv s3/job/0/
+    fi
+
     IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
-    PORT=9000
+    PORT=9001
     export MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
     export MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-    minio server s3/ &
+    minio server s3/ --address ${IP}:${PORT} &
     echo "Warning: minio server might take some time to start locally"
+
     # TODO: write a better way to check if the service if already up
     sleep 20
     mc config host add s3fixed http://${IP}:${PORT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}

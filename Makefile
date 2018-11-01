@@ -13,13 +13,12 @@ help:
 	@echo "- run: setup-cluster | setup-storage | run-job | commit-data"
 	@echo "- down-job: kills pods related with dag"
 	@echo "- down-storage: kills minio process in local machine and deletes bucket in the cluster"
-	@echo "- down-cluster: kills argo and minio and stops minikube"
+	@echo "- down-cluster: kills argo and minio"
 
 
 setup-cluster:
-	@minikube start
-	-@bash scripts/argo.sh up
-	-@bash scripts/minio.sh up
+	@bash scripts/argo.sh up
+	@bash scripts/minio.sh up
 
 
 setup-storage:
@@ -38,7 +37,7 @@ run-job:
 
 
 commit-data:
-	@bash scripts/data.sh -i ${RUN_ID} -j ${JOB} wait-until-finished
+	@bash scripts/job.sh -i ${RUN_ID} -j ${JOB} wait-until-finished
 	@bash scripts/data.sh -i ${RUN_ID} -j ${JOB} move-to-persistent
 
 
@@ -55,6 +54,5 @@ down-storage:
 
 
 down-cluster:
-	-@bash scripts/argo.sh down
-	-@bash scripts/minio.sh down
-	@minikube stop
+	@bash scripts/argo.sh down
+	@bash scripts/minio.sh down
