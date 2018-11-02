@@ -28,6 +28,8 @@ if __name__ == '__main__':
     out, err = process.communicate()
     out = out.decode('utf-8').split('\n') if out else out
     err = err.decode('utf-8').split('\n') if err else err
+    print(out)
+    print(err)
 
     with open(LOGS_PATH, "a") as fp:
         if out:

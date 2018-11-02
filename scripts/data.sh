@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eo pipefail
+set -o pipefail
 
 
 while getopts ":j:i:" opt; do
@@ -35,6 +35,11 @@ function up-local-storage {
         cp job/resources/test.csv s3/job/0/
     fi
 
+    if [ $(ps | grep minio | wc -l) -gt 1 ];
+    then
+        killall -9 minio
+    fi
+
     IP=$(ifconfig | grep "inet " | grep -v 127.0.0.1 | cut -d\  -f2 | head -1)
     PORT=9001
     export MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
@@ -42,14 +47,21 @@ function up-local-storage {
     minio server s3/ --address ${IP}:${PORT} &
     echo "Warning: minio server might take some time to start locally"
 
-    # TODO: write a better way to check if the service if already up
-    sleep 20
+    # /minio/health/live and /minio/health/ready are useless
+    while [ $(curl --write-out %{http_code} --silent --output /dev/null http://${IP}:${PORT}) != 403 ];
+    do
+        sleep 1
+    done;
+
     mc config host add s3fixed http://${IP}:${PORT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
 }
 
 function down-local-storage {
     mc config host remove s3fixed
-    killall -9 minio # TODO: better way to do it
+    if [ $(ps | grep minio | wc -l) -gt 1 ];
+    then
+        killall -9 minio # TODO: better way to do it
+    fi
 }
 
 function up-storage {

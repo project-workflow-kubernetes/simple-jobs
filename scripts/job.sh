@@ -33,10 +33,11 @@ function build-and-push-image {
 function generate-dag {
     if [ $(conda env list | grep workflow | wc -l) == 0 ];
     then
-       cd workflow; make install
+       cd workflow; make install; cd ..;
     fi;
+
     source activate workflow
-    python src/workflow/main.py ${JOB_NAME} ${CHANGED_FILE} ${RUN_ID}
+    python workflow/src/workflow/main.py ${JOB_NAME} ${CHANGED_FILE} ${RUN_ID}
     source deactivate
 }
 

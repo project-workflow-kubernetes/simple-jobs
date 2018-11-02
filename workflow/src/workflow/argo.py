@@ -44,7 +44,8 @@ TEMPLATES = """
               name: {job_name}-{run_id}-config
               key: data_metadata_path
       imagePullPolicy: IfNotPresent
-      command: {command_to_run}
+      command: {executor}
+      args: {command_to_run}
       volumeMounts:
         - name: shared-volume
           mountPath: /data"""
@@ -72,7 +73,8 @@ def build_argo_yaml(tasks_to_run, data_to_run, job_name, run_id):
                                   job_name=job_name,
                                   run_id=run_id,
                                   container_id=data_to_run[t]['image'],
-                                  command_to_run=data_to_run[t]['command'])
+                                  executor=['python', 'src/{job_name}/executor.py'.format(job_name=job_name)],
+                                  command_to_run=[data_to_run[t]['command']])
                  for t in data_to_run]
 
     dag_header = ARGO_DAG_HEADER.format(job_name=job_name, run_id=run_id)
