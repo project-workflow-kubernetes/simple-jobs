@@ -18,13 +18,13 @@ Project's Tasks can be found [here](https://trello.com/b/suwl3K0K/project-workfl
 
 ## How to run
 In order to run the task, it is needed 4 arguments:
-- JOB: which is the job name
+- JOB: job name
 - RUN_ID: number which identifies the run (the 0 is reserved)
 - CHANGED_FILE: indicates the file which was changed, it won't work if the file is not specificied in `dependencies.json`
 - BUILD_IMAGE: `true` or `false` where `true` builds the image in the local machine
 
 ### Dependencies
-`conda; docker; kubectl; minio; mc`
+`conda; docker; kubectl; minio; mc;`
 
 The ports 9000 (minio cluster port), 9001 (minio local port) and 80 (argo) must be free
 
@@ -34,11 +34,11 @@ It will install argo and minio, setup storage in the cluster and local, run the 
 ```bash
 make run JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=false
 ```
-After running it, the files (outputs, logs and metadata) are in the folder `s3/{JOB}/{RUN_ID}`
+After run it, the files (outputs, logs and metadata) are in the folder `s3/{JOB}/{RUN_ID}`
 
 ### Install and Uninstall Argo and Minio in the cluster
 ```bash
-make setup-cluster JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=false
+make setup-cluster JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=true
 make down-cluster JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=false
 ```
 
