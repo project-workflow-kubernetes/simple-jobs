@@ -11,6 +11,53 @@ Becoming familiar with state-of-the art application containerization and orchest
 Becoming familiar with cloud-based application development.
 Working in an interactive and interdisciplinary research environment.
 
-## First TODOs
+## TODOs
 
 Project's Tasks can be found [here](https://trello.com/b/suwl3K0K/project-workflow-kubernetes).
+
+
+## How to run
+In order to run the task, it is needed 4 arguments:
+- JOB: which is the job name
+- RUN_ID: number which identifies the run (the 0 is reserved)
+- CHANGED_FILE: indicates the file which was changed, it won't work if the file is not specificied in `dependencies.json`
+- BUILD_IMAGE: `true` or `false` where `true` builds the image in the local machine
+
+### Dependencies
+`conda; docker; kubectl; minio; mc`
+
+The ports 9000 (minio cluster port), 9001 (minio local port) and 80 (argo) must be free
+
+
+### Run from scratch
+It will install argo and minio, setup storage in the cluster and local, run the job and commit the data in the permanent storage
+```bash
+make run JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=false
+```
+After running it, the files (outputs, logs and metadata) are in the folder `s3/{JOB}/{RUN_ID}`
+
+### Install and Uninstall Argo and Minio in the cluster
+```bash
+make setup-cluster JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=false
+make down-cluster JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=false
+```
+
+### Get up / down a local minio (permanent) and bind minio "folders"
+```bash
+make setup-storage JOB=job RUN_ID=7 CHANGED_FILE=test.csv BUILD_IMAGE=false
+make down-storage JOB=job RUN_ID=7 CHANGED_FILE=test.csv BUILD_IMAGE=false
+```
+
+### Run job
+```bash
+make run-job JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=true
+make down-job JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=true
+```
+
+### Commit data to permanent storage
+```bash
+make commit-data JOB=job RUN_ID=7 CHANGED_FILE=train.csv BUILD_IMAGE=true
+```
+
+
+
