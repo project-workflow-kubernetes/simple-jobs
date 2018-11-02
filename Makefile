@@ -41,9 +41,6 @@ commit-data:
 	@bash scripts/data.sh -i ${RUN_ID} -j ${JOB} move-to-persistent
 
 
-run: setup-cluster setup-storage run-job commit-data
-
-
 down-job:
 	@bash scripts/job.sh -i ${RUN_ID} -j ${JOB} down
 
@@ -56,3 +53,8 @@ down-storage:
 down-cluster:
 	@bash scripts/argo.sh down
 	@bash scripts/minio.sh down
+
+
+run: setup-cluster setup-storage run-job commit-data down-job down-storage down-cluster
+	@ls -lha s3/${JOB}/${RUN_ID}
+	@cat s3/${JOB}/${RUN_ID}/logs.log
